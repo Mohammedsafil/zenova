@@ -5,7 +5,7 @@ import '../stylefiles/VoiceCommand.css';
 
 const VoiceCommand = () => {
   const { transcript, resetTranscript } = useSpeechRecognition();
-  const [isListening, setIsListening] = useState(false);
+  const [isListening, setIsListening] = useState(true);
   const [wakeWord, setWakeWord] = useState('');
   const [assistantName, setAssistantName] = useState('');
   const [userMessage, setUserMessage] = useState('');
@@ -17,26 +17,25 @@ const VoiceCommand = () => {
       return;
     }
 
-    if (isListening) {
-      SpeechRecognition.startListening({ continuous: true });
-    } else {
-      SpeechRecognition.stopListening();
-    }
-  }, [isListening]);
+    SpeechRecognition.startListening({ continuous: true });
+  }, []);
 
   useEffect(() => {
-    if (transcript.toLowerCase().includes(wakeWord.toLowerCase())) {
-      setIsListening(true);
-      resetTranscript();
-    } else if (isListening && transcript) {
-      setTimeout(() => {
-        setUserMessage(transcript);
-        sendMessageToAPI(transcript);
-        setIsListening(false);
-        resetTranscript();
-      }, 2000);
+    const lowerTranscript = transcript.toLowerCase();
+    const lowerWakeWord = wakeWord.toLowerCase();
+
+    if (lowerTranscript.includes(lowerWakeWord)) {
+      const index = lowerTranscript.indexOf(lowerWakeWord);
+      if (index !== -1) {
+        const commandText = transcript.substring(index + wakeWord.length).trim();
+        if (commandText) {
+          setUserMessage(commandText);
+          sendMessageToAPI(commandText);
+        }
+      }
+      resetTranscript(); // Reset after processing, but keep listening
     }
-  }, [transcript, isListening, wakeWord, resetTranscript]);
+  }, [transcript, wakeWord, resetTranscript]);
 
   const sendMessageToAPI = async (message) => {
     if (message.length < 1 || message.length > 100) {
@@ -78,8 +77,8 @@ const VoiceCommand = () => {
         </div>
       ) : (
         <>
-          <h2>Say "{assistantName}" to activate</h2>
-          <div className={`ball ${isListening ? 'listening' : 'idle'}`}></div>
+          <h2>Say "{assistantName}" in your sentence</h2>
+          <div className={`ball listening`}></div>
           <p className="recognized-text">{userMessage}</p>
           {commandCode && <p className="response-text">Command Code: {commandCode}</p>}
         </>
