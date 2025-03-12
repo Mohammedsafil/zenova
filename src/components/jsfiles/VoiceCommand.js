@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
-import axios from "axios";
-import "../stylefiles/VoiceCommand.css";
+import React, { useEffect, useState } from 'react';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import axios from 'axios';
+import '../stylefiles/VoiceCommand.css';
 
 const VoiceCommand = () => {
   const { transcript, resetTranscript } = useSpeechRecognition();
   const [isListening, setIsListening] = useState(false);
-  const [wakeWord, setWakeWord] = useState("");
-  const [userMessage, setUserMessage] = useState("");
-  const [response, setResponse] = useState("");
+  const [wakeWord, setWakeWord] = useState('');
+  const [assistantName, setAssistantName] = useState('');
+  const [userMessage, setUserMessage] = useState('');
+  const [response, setResponse] = useState('');
 
   useEffect(() => {
     if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
-      alert("Your browser does not support Speech Recognition. Please use Chrome or Edge.");
+      alert('Your browser does not support Speech Recognition. Please use Chrome or Edge.');
       return;
     }
 
@@ -24,7 +25,7 @@ const VoiceCommand = () => {
   }, [isListening]);
 
   useEffect(() => {
-    if (wakeWord && transcript.toLowerCase().includes(wakeWord.toLowerCase())) {
+    if (transcript.toLowerCase().includes(wakeWord.toLowerCase())) {
       setIsListening(true);
       resetTranscript();
     } else if (isListening && transcript) {
@@ -61,18 +62,21 @@ const VoiceCommand = () => {
 
   return (
     <div className="container">
-      {!wakeWord ? (
-        <div>
-          <input
-            type="text"
-            placeholder="Name your assistant..."
-            onChange={(e) => setWakeWord(e.target.value)}
+      {!assistantName ? (
+        <div className="setup">
+          <h2>Name your Assistant</h2>
+          <input 
+            type="text" 
+            placeholder="Enter assistant name" 
+            value={wakeWord} 
+            onChange={(e) => setWakeWord(e.target.value)} 
           />
-          <button onClick={() => setIsListening(true)}>Start Listening</button>
+          <button onClick={() => setAssistantName(wakeWord)}>Set Name</button>
         </div>
       ) : (
         <>
-          <div className={`ball ${isListening ? "listening" : "idle"}`}></div>
+          <h2>Say "{assistantName}" to activate</h2>
+          <div className={`ball ${isListening ? 'listening' : 'idle'}`}></div>
           <p className="recognized-text">{isListening ? transcript : userMessage}</p>
           {response && <p className="response-text">{response}</p>}
         </>
