@@ -80,7 +80,7 @@ const VoiceCommand = () => {
         <>
           <h2>Say "{assistantName}" to activate</h2>
           <div className={`ball ${isListening ? 'listening' : 'idle'}`}></div>
-          <p className="recognized-text">{isListening ? transcript : userMessage}</p>
+          <p className="recognized-text">{userMessage}</p>
           {commandCode && <p className="response-text">Command Code: {commandCode}</p>}
         </>
       )}
