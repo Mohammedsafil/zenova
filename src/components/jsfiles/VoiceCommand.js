@@ -5,7 +5,6 @@ import '../stylefiles/VoiceCommand.css';
 
 const VoiceCommand = () => {
   const { transcript, resetTranscript } = useSpeechRecognition();
-  const [isListening, setIsListening] = useState(true);
   const [wakeWord, setWakeWord] = useState('');
   const [assistantName, setAssistantName] = useState('');
   const [userMessage, setUserMessage] = useState('');
@@ -16,7 +15,6 @@ const VoiceCommand = () => {
       alert('Your browser does not support Speech Recognition. Please use Chrome or Edge.');
       return;
     }
-
     SpeechRecognition.startListening({ continuous: true });
   }, []);
 
@@ -24,18 +22,18 @@ const VoiceCommand = () => {
     const lowerTranscript = transcript.toLowerCase();
     const lowerWakeWord = wakeWord.toLowerCase();
 
-    if (lowerTranscript.includes(lowerWakeWord)) {
+    if (lowerWakeWord && lowerTranscript.includes(lowerWakeWord)) {
       const index = lowerTranscript.indexOf(lowerWakeWord);
       if (index !== -1) {
         const commandText = transcript.substring(index + wakeWord.length).trim();
         if (commandText) {
-          setUserMessage(commandText);
+          setUserMessage(commandText);  // Store the command
           sendMessageToAPI(commandText);
+          resetTranscript();  // Reset only AFTER processing
         }
       }
-      resetTranscript(); // Reset after processing, but keep listening
     }
-  }, [transcript, wakeWord, resetTranscript]);
+  }, [transcript, wakeWord]);
 
   const sendMessageToAPI = async (message) => {
     if (message.length < 1 || message.length > 100) {
