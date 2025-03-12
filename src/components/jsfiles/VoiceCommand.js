@@ -5,7 +5,8 @@ import '../stylefiles/VoiceCommand.css';
 const VoiceCommand = () => {
   const { transcript, resetTranscript } = useSpeechRecognition();
   const [isListening, setIsListening] = useState(false);
-  const wakeWord = 'hello';
+  const [wakeWord, setWakeWord] = useState('');
+  const [assistantName, setAssistantName] = useState('');
 
   useEffect(() => {
     if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
@@ -21,7 +22,7 @@ const VoiceCommand = () => {
   }, [isListening]);
 
   useEffect(() => {
-    if (transcript.toLowerCase().includes(wakeWord)) {
+    if (transcript.toLowerCase().includes(wakeWord.toLowerCase())) {
       setIsListening(true);
       resetTranscript();
     } else if (isListening && transcript) {
@@ -30,12 +31,28 @@ const VoiceCommand = () => {
         resetTranscript();
       }, 2000);
     }
-  }, [transcript, isListening, resetTranscript]);
+  }, [transcript, isListening, wakeWord, resetTranscript]);
 
   return (
     <div className="container">
-      <div className={`ball ${isListening ? 'listening' : 'idle'}`}></div>
-      <p className="recognized-text">{isListening ? transcript : ''}</p>
+      {!assistantName ? (
+        <div className="setup">
+          <h2>Name your Assistant</h2>
+          <input 
+            type="text" 
+            placeholder="Enter assistant name" 
+            value={wakeWord} 
+            onChange={(e) => setWakeWord(e.target.value)} 
+          />
+          <button onClick={() => setAssistantName(wakeWord)}>Set Name</button>
+        </div>
+      ) : (
+        <>
+          <h2>Say "{assistantName}" to activate</h2>
+          <div className={`ball ${isListening ? 'listening' : 'idle'}`}></div>
+          <p className="recognized-text">{isListening ? transcript : ''}</p>
+        </>
+      )}
     </div>
   );
 };
