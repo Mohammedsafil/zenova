@@ -9,7 +9,7 @@ const VoiceCommand = () => {
   const [wakeWord, setWakeWord] = useState('');
   const [assistantName, setAssistantName] = useState('');
   const [userMessage, setUserMessage] = useState('');
-  const [response, setResponse] = useState('');
+  const [commandCode, setCommandCode] = useState('');
 
   useEffect(() => {
     if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
@@ -40,7 +40,7 @@ const VoiceCommand = () => {
 
   const sendMessageToAPI = async (message) => {
     if (message.length < 1 || message.length > 100) {
-      setResponse("Invalid input length");
+      setCommandCode("Invalid input length");
       return;
     }
     try {
@@ -50,12 +50,15 @@ const VoiceCommand = () => {
         headers: { "Content-Type": "application/json" }
       });
 
-      setResponse(data);
+      // Extract only the command code from the response
+      const extractedCode = data.match(/\d+/g)?.[0] || "No Code Found";
+      setCommandCode(extractedCode);
+
     } catch (error) {
       if (error.response) {
-        setResponse(error.response.data || "Error sending message");
+        setCommandCode(error.response.data.includes("Access Denied") ? "Access Denied" : "Error");
       } else {
-        setResponse("Network Error");
+        setCommandCode("Network Error");
       }
     }
   };
@@ -78,7 +81,7 @@ const VoiceCommand = () => {
           <h2>Say "{assistantName}" to activate</h2>
           <div className={`ball ${isListening ? 'listening' : 'idle'}`}></div>
           <p className="recognized-text">{isListening ? transcript : userMessage}</p>
-          {response && <p className="response-text">{response}</p>}
+          {commandCode && <p className="response-text">Command Code: {commandCode}</p>}
         </>
       )}
     </div>
