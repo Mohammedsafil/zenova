@@ -25,6 +25,7 @@ const VoiceCommand = () => {
     if (lowerWakeWord && lowerTranscript.includes(lowerWakeWord)) {
       const index = lowerTranscript.indexOf(lowerWakeWord);
       if (index !== -1) {
+        console.log(transcript)
         const commandText = transcript.substring(index + wakeWord.length).trim();
         if (commandText) {
           setUserMessage(commandText);  // Store the command
